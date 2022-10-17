@@ -3,6 +3,6 @@
  :page-index 0
  :navbar? true}
 
-## Write something about something
+## Writing things down
 
-wow wow wow
+helps me remember

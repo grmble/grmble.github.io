@@ -3,6 +3,12 @@
          :requires ([babashka.fs :as fs])
          :task (do (println "Removing folder 'public'.")
                    (fs/delete-tree "public"))}
+  build {:doc "Build for deployment."
+         :task (do (println "Build for deployment.")
+                   (clojure "-M:build"))}
+  serve {:doc "Run the builtin server for interactive use."
+         :task (clojure "-X:serve")}
   lunr {:doc "Rebuild Lunr index."
+        :depends [build]
         :task (do (println "Building Lunr index.")
                   (shell "node build-index.js"))}}}

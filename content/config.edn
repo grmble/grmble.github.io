@@ -1,6 +1,6 @@
 {:site-title                   "Grmblog"
  :author                       "Juergen Gmeiner"
- :description                  "I write things down so I remember"
+ :description                  "Writing things down so I remember"
  :site-url                     "https://grmble.github.io/"
  :post-root                    "posts"
  :page-root                    "pages"
