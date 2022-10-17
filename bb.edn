@@ -1,0 +1,8 @@
+{:tasks
+ {clean {:doc "Remove 'public' folder."
+         :requires ([babashka.fs :as fs])
+         :task (do (println "Removing folder 'public'.")
+                   (fs/delete-tree "public"))}
+  lunr {:doc "Rebuild Lunr index."
+        :task (do (println "Building Lunr index.")
+                  (shell "node build-index.js"))}}}

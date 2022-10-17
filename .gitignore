@@ -13,3 +13,9 @@ pom.xml.asc
 /themes/lotus/css/blog.css
 /themes/lotus/css/blog.css.map
 .cpcache/
+/node_modules/
+/themes/blue/js/lunr_index.js
+
+/.clj-kondo/.cache/
+/.lsp/.cache/
+/.calva/output-window/
