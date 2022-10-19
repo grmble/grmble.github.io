@@ -1,9 +1,10 @@
 {:title "Learn You A Kee-Frame, Part 1"
  :layout :post
- :tags  ["clojure"]}
+ :tags  ["clojure" "lyakf"]}
 
 I am taking a look at [kee-frame][keeframe].  This also implies 
-[re-frame][reframe] - I've read about it, there seemed to be a lot of boilerplate, but I've never used it.
+[re-frame][reframe] - I've read about it, there seemed to be a lot of boilerplate, 
+but I've never used it.
 
 But I continue to hear good things about it, so here we are.
 
@@ -203,6 +204,12 @@ see the `(swap! expanded? false)`.
 * `hiccup` is the name for this style of clojure html templating.
   The original library is for server side rendering, but
   reagent adopts the syntax as a JSX replacement.
+
+## Release Build on GH Pages
+
+[https://grmble.github.io/learn-you-a-keeframe/part1/](https://grmble.github.io/learn-you-a-keeframe/part1/)
+
+78 KB compressed.  Not a bad start.
 
 
 [reagent]: https://reagent-project.github.io/
