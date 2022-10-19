@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Grmblog</title>
+    
+<meta name="keywords" content="clojure">
+
+<meta name="description" content="I am taking a look at kee-frame.  This also implies
+re-frame - I&#39;ve read about it, there seemed to be a lot of boilerplate, but I&#39;ve never used it.But I continue to hear good things about it, so here we are.">
+
+<meta property="og:description" content="I am taking a look at kee-frame.  This also implies
+re-frame - I&#39;ve read about it, there seemed to be a lot of boilerplate, but I&#39;ve never used it.But I continue to hear good things about it, so here we are.">
+
+<meta property="og:url" content="https://grmble.github.io/posts-output/2022-10-18-learn-you-a-keeframe-part-1/" />
+<meta property="og:title" content="Learn You A Kee-Frame, Part 1" />
+<meta property="og:type" content="article" />
+
+    <link rel="canonical" href="https://grmble.github.io/posts-output/2022-10-18-learn-you-a-keeframe-part-1/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700" rel="stylesheet"
+        type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <script src="https://unpkg.com/lunr/lunr.js"></script>
+    <script src="/js/lunr_index.js"></script>
+    <script src="/js/lunrclient.js"></script>
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Grmblog</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li ><a href="/">Home</a></li>
+                    <li ><a href="/archives/">Archives</a></li>
+                    
+                    <li >
+                        <a href="/pages-output/about/">About</a>
+                    </li>
+                    
+                    <li><a href="/feed.xml">RSS</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+        <!--/.container-fluid -->
+    </nav>
+
+
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-lg-9">
+                <div id="content">
+                    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">18 October 2022</div>
+        
+    </div>
+    <h2>Learn You A Kee-Frame, Part 1</h2>
+</div>
+<div>
+    
+    <p>I am taking a look at <a href="https://github.com/ingesolvoll/kee-frame">kee-frame</a>.  This also implies
+<a href="https://day8.github.io/re-frame/re-frame/">re-frame</a> - I've read about it, there seemed to be a lot of boilerplate, but I've never used it.</p><p>But I continue to hear good things about it, so here we are.</p><h2 id="a-minimal-shadow-cljs-project">A minimal shadow-cljs project</h2><pre><code class="bash">yarn add -D shadow-cljs
+</code></pre><p>In <code>shadow-cljs.edn</code>:</p><pre><code class="clojure">{:source-paths ["src" "test"]
+ :dev-http {8080 "public"}
+ :builds
+ {:app
+  {:target :browser
+   :modules {:main {:init-fn grmble.lyakf.frontend.app/init}}}
+
+  :test
+  {:target :node-test
+   :output-to "public/js/test.js"
+   :autorun true}}}
+</code></pre><p>In <code>grmble.lyakf.frontend.app</code> there is a hello-world function <code>init</code>.</p><p>In <code>public/index.html</code> there is a minimal html file that loads <code>js/main.js</code>.</p><p>And there is a very basic test:</p><pre><code class="clojure">(ns grmble.lyakf.frontend.app-test
+  (:require
+   [cljs.test :refer [deftest is]]
+   [grmble.lyakf.frontend.app :as app]))
+
+(deftest init-test
+  (is (nil? (app/init)))
+  (is (= 1 1)))
+</code></pre><p><code>yarn shadow-cljs watch app test</code> starts he application (with hot reload)
+and the tests are executed.</p><h2 id="kee-frame-dependencies">Kee-Frame Dependencies</h2><p>I tried adding the kee-frame dependency to <code>shadow-cljs.edn</code>,
+but there seems little additional tooling.  E.g. how do
+I get a dependency tree?  Because kee-frame has not updated
+in some months, and it is pulling in some outdated dependencies.</p><p>So I switched to using <code>deps.edn</code> for dependencies.</p><p>This is the new <code>shadow-cljs.edn</code>:</p><pre><code class="clojure">{:deps {:aliases [:shadow]}
+
+ :dev-http {8080 "public"}
+
+ :builds
+ {:app
+  {:target :browser
+   :modules {:main {:init-fn grmble.lyakf.frontend.app/init!
+                    :preloads [re-frisk.preload]}}}
+
+
+  :test
+  {:target :node-test
+   :output-to "public/js/test.js"
+   :autorun true}}}
+</code></pre><p>And this is <code>deps.edn</code>:</p><pre><code class="clojure">{:deps {kee-frame/kee-frame {:mvn/version "1.3.2"}
+
+        reagent/reagent                       {:mvn/version "1.1.1"}
+        ;; these are all kee-frame deps - then ran neil upgrade
+        re-frame/re-frame                     {:mvn/version "1.3.0"}
+        re-chain/re-chain                     {:mvn/version "1.3"}
+        metosin/reitit-core                   {:mvn/version "0.5.18"}
+        glimt/glimt                           {:mvn/version "0.2.2"}
+        day8.re-frame/http-fx                 {:mvn/version "0.2.4"}
+        cljs-ajax/cljs-ajax                   {:mvn/version "0.8.4"}
+        com.taoensso/timbre                   {:mvn/version "5.2.1"}
+        venantius/accountant                  {:mvn/version "0.2.5"}
+        org.clojure/core.match                {:mvn/version "1.0.0"}
+        expound/expound                       {:mvn/version "0.9.0"}
+        breaking-point/breaking-point         {:mvn/version "0.1.2"}
+        pez/clerk                             {:mvn/version "1.0.0"}}
+
+ :paths ["src" "test"]
+
+ :aliases
+ {:shadow
+  {:extra-deps {thheller/shadow-cljs          {:mvn/version "2.20.5"}
+                re-frisk/re-frisk             {:mvn/version "1.6.0"}}}}}
+</code></pre><p>I just copied kee-frames dependencies from its <code>deps.edn</code>,
+then I ran <code>neil upgrade</code> to upgrade them all.  I also
+added <code>re-frisk</code>. Apparently there is also a <code>re-frame-10x</code>
+which is similiar, but more on that later.</p><p>The project can now be started in two ways:</p><pre><code class="bash">yarn shadow-cljs watch app test
+clojure -M:shadow -m shadow.cljs.devtools.cli watch app test
+</code></pre><p>The second one is a bit of a mouthful, but including the
+main function in the <code>:shadow</code> alias breaks the start via
+yarn, and I prefer that one.  This could be solved
+by using a second alias to provide the main namespace.</p><p>What I am actually doing is the third way:</p><pre><code class="bash">yarn shadow-cljs start  # to start the server
+</code></pre><p>Then I start the repl from <a href="https://calva.io/">calva</a>.  I think the <code>deps.edn</code>
+method works as well, but I choose <code>shadow-cljs</code> - this lets
+me toggle automatic test execution on and off.  And by using the
+server, re-connecting is less painful if the dependencies change
+or you hose your repl in some way.</p><h2 id="a-little-bit-of-reagent">A Little Bit Of Reagent</h2><p><a href="https://reagent-project.github.io/">Reagent</a> is a popular clojure React wrapper,
+and it is used as the view layer in <a href="https://day8.github.io/re-frame/re-frame/">re-frame</a>.
+I've never used reagent either, but I've used plenty
+of react wrappers.</p><p>So the plan is to set up a basic reagent SPA, then
+take my time and convert it to a full featured
+re-frame application, taking kee-frame shortcuts as
+much as possible.</p><p>I am stealing the page layout from the luminus
+template.  It is a pretty standard <a href="https://bulma.io/">bulma</a>
+layout, but I find the hiccup shortcuts
+for classes, ids and deeply nested html
+very interesting.</p><pre><code class="clojure">(defonce session (r/atom nil))
+
+(defn nav-link [uri title page]
+  [:a.navbar-item
+   {:href   uri
+    :class (when (= page (:page @session)) "is-active")}
+   title])
+
+(defn navbar []
+  (r/with-let [expanded? (r/atom false)]
+    [:nav.navbar.is-info&gt;div.container
+     [:div.navbar-brand
+      [:a.navbar-item {:href "/" :style {:font-weight :bold}} "Learn You A Kee-Frame"]
+      [:span.navbar-burger.burger
+       {:data-target :nav-menu
+        :on-click #(swap! expanded? not)
+        :class (when @expanded? :is-active)}
+       [:span] [:span] [:span]]]
+     [:div#nav-menu.navbar-menu
+      {:class (when @expanded? :is-active)}
+      [:div.navbar-start
+       [nav-link "#/" "Home" :home]
+       [nav-link "#/about" "About" :about]]]]))
+</code></pre><p>This does not seem like much, but as usual clojure code is very dense.</p><p>This is the markup for a bulma page header.  I've done this in
+HTML, JSX, and all kinds of templating systems, usually you have to scroll
+around to see the whole thing.  Me gusta hiccup.</p><p>And what if I told you that the snippet also contains the code
+for handling the burger menu?  CSS media queries turn it off above
+1024 pixels width, so make your window smaller.
+Clicking the burger menu then toggles the <code>:is-active</code> class -
+see the <code>(swap! expanded? false)</code>.</p><ul><li><code>session</code> and <code>expande</code> are <code>ratoms</code> - what goes for state in reagent
+programs.  <code>session</code> is the global application state (currently unused),
+<code>expanded?</code> is component local state.  A fresh atom is created when
+the component is mounted.</li><li><code>nav-link</code> and <code>navbar</code> are reagent components.  Any arguments are props.</li><li>Some very interesting shortcuts in there.  I invite to inspect
+the navbar in your developer console and see what <code>:nav.navbar.is-info&gt;div.container</code>
+turns into.  Or <code>:div#nav-menu.navbar-menu</code></li><li><code>hiccup</code> is the name for this style of clojure html templating.
+The original library is for server side rendering, but
+reagent adopts the syntax as a JSX replacement.</li></ul>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/tags-output/clojure/">clojure</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        
+        <a class="right" href="/posts-output/2022-10-17-clojure-tools-and-deps/">Clojure Tools and Deps &raquo;</a>
+        
+    </div>
+
+    
+
+
+</div>
+
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div id="sidebar">
+                    <h3>Search</h3>
+
+                    <!--- Search form -->
+                    <form id="lunrSearchForm" name="lunrSearchForm" action="/">
+                        <input class="search-input" name="q" placeholder="Enter search term" type="text">
+                        <input class="button nopadding" type="submit" value="Search">
+                    </form>
+                    <!--
+                <div class="loading" id="loading-div">
+                    <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+                </div>
+
+                -->
+
+                    <div id="right" class="clearfix">
+                        <div class="resultCount" id="resultCount"></div>
+                        <hr />
+                        <div id="searchResults">
+                            <!--
+                      
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">18 October 2022</div>
+        
+    </div>
+    <h2>Learn You A Kee-Frame, Part 1</h2>
+</div>
+<div>
+    
+    <p>I am taking a look at <a href="https://github.com/ingesolvoll/kee-frame">kee-frame</a>.  This also implies
+<a href="https://day8.github.io/re-frame/re-frame/">re-frame</a> - I've read about it, there seemed to be a lot of boilerplate, but I've never used it.</p><p>But I continue to hear good things about it, so here we are.</p><h2 id="a-minimal-shadow-cljs-project">A minimal shadow-cljs project</h2><pre><code class="bash">yarn add -D shadow-cljs
+</code></pre><p>In <code>shadow-cljs.edn</code>:</p><pre><code class="clojure">{:source-paths ["src" "test"]
+ :dev-http {8080 "public"}
+ :builds
+ {:app
+  {:target :browser
+   :modules {:main {:init-fn grmble.lyakf.frontend.app/init}}}
+
+  :test
+  {:target :node-test
+   :output-to "public/js/test.js"
+   :autorun true}}}
+</code></pre><p>In <code>grmble.lyakf.frontend.app</code> there is a hello-world function <code>init</code>.</p><p>In <code>public/index.html</code> there is a minimal html file that loads <code>js/main.js</code>.</p><p>And there is a very basic test:</p><pre><code class="clojure">(ns grmble.lyakf.frontend.app-test
+  (:require
+   [cljs.test :refer [deftest is]]
+   [grmble.lyakf.frontend.app :as app]))
+
+(deftest init-test
+  (is (nil? (app/init)))
+  (is (= 1 1)))
+</code></pre><p><code>yarn shadow-cljs watch app test</code> starts he application (with hot reload)
+and the tests are executed.</p><h2 id="kee-frame-dependencies">Kee-Frame Dependencies</h2><p>I tried adding the kee-frame dependency to <code>shadow-cljs.edn</code>,
+but there seems little additional tooling.  E.g. how do
+I get a dependency tree?  Because kee-frame has not updated
+in some months, and it is pulling in some outdated dependencies.</p><p>So I switched to using <code>deps.edn</code> for dependencies.</p><p>This is the new <code>shadow-cljs.edn</code>:</p><pre><code class="clojure">{:deps {:aliases [:shadow]}
+
+ :dev-http {8080 "public"}
+
+ :builds
+ {:app
+  {:target :browser
+   :modules {:main {:init-fn grmble.lyakf.frontend.app/init!
+                    :preloads [re-frisk.preload]}}}
+
+
+  :test
+  {:target :node-test
+   :output-to "public/js/test.js"
+   :autorun true}}}
+</code></pre><p>And this is <code>deps.edn</code>:</p><pre><code class="clojure">{:deps {kee-frame/kee-frame {:mvn/version "1.3.2"}
+
+        reagent/reagent                       {:mvn/version "1.1.1"}
+        ;; these are all kee-frame deps - then ran neil upgrade
+        re-frame/re-frame                     {:mvn/version "1.3.0"}
+        re-chain/re-chain                     {:mvn/version "1.3"}
+        metosin/reitit-core                   {:mvn/version "0.5.18"}
+        glimt/glimt                           {:mvn/version "0.2.2"}
+        day8.re-frame/http-fx                 {:mvn/version "0.2.4"}
+        cljs-ajax/cljs-ajax                   {:mvn/version "0.8.4"}
+        com.taoensso/timbre                   {:mvn/version "5.2.1"}
+        venantius/accountant                  {:mvn/version "0.2.5"}
+        org.clojure/core.match                {:mvn/version "1.0.0"}
+        expound/expound                       {:mvn/version "0.9.0"}
+        breaking-point/breaking-point         {:mvn/version "0.1.2"}
+        pez/clerk                             {:mvn/version "1.0.0"}}
+
+ :paths ["src" "test"]
+
+ :aliases
+ {:shadow
+  {:extra-deps {thheller/shadow-cljs          {:mvn/version "2.20.5"}
+                re-frisk/re-frisk             {:mvn/version "1.6.0"}}}}}
+</code></pre><p>I just copied kee-frames dependencies from its <code>deps.edn</code>,
+then I ran <code>neil upgrade</code> to upgrade them all.  I also
+added <code>re-frisk</code>. Apparently there is also a <code>re-frame-10x</code>
+which is similiar, but more on that later.</p><p>The project can now be started in two ways:</p><pre><code class="bash">yarn shadow-cljs watch app test
+clojure -M:shadow -m shadow.cljs.devtools.cli watch app test
+</code></pre><p>The second one is a bit of a mouthful, but including the
+main function in the <code>:shadow</code> alias breaks the start via
+yarn, and I prefer that one.  This could be solved
+by using a second alias to provide the main namespace.</p><p>What I am actually doing is the third way:</p><pre><code class="bash">yarn shadow-cljs start  # to start the server
+</code></pre><p>Then I start the repl from <a href="https://calva.io/">calva</a>.  I think the <code>deps.edn</code>
+method works as well, but I choose <code>shadow-cljs</code> - this lets
+me toggle automatic test execution on and off.  And by using the
+server, re-connecting is less painful if the dependencies change
+or you hose your repl in some way.</p><h2 id="a-little-bit-of-reagent">A Little Bit Of Reagent</h2><p><a href="https://reagent-project.github.io/">Reagent</a> is a popular clojure React wrapper,
+and it is used as the view layer in <a href="https://day8.github.io/re-frame/re-frame/">re-frame</a>.
+I've never used reagent either, but I've used plenty
+of react wrappers.</p><p>So the plan is to set up a basic reagent SPA, then
+take my time and convert it to a full featured
+re-frame application, taking kee-frame shortcuts as
+much as possible.</p><p>I am stealing the page layout from the luminus
+template.  It is a pretty standard <a href="https://bulma.io/">bulma</a>
+layout, but I find the hiccup shortcuts
+for classes, ids and deeply nested html
+very interesting.</p><pre><code class="clojure">(defonce session (r/atom nil))
+
+(defn nav-link [uri title page]
+  [:a.navbar-item
+   {:href   uri
+    :class (when (= page (:page @session)) "is-active")}
+   title])
+
+(defn navbar []
+  (r/with-let [expanded? (r/atom false)]
+    [:nav.navbar.is-info&gt;div.container
+     [:div.navbar-brand
+      [:a.navbar-item {:href "/" :style {:font-weight :bold}} "Learn You A Kee-Frame"]
+      [:span.navbar-burger.burger
+       {:data-target :nav-menu
+        :on-click #(swap! expanded? not)
+        :class (when @expanded? :is-active)}
+       [:span] [:span] [:span]]]
+     [:div#nav-menu.navbar-menu
+      {:class (when @expanded? :is-active)}
+      [:div.navbar-start
+       [nav-link "#/" "Home" :home]
+       [nav-link "#/about" "About" :about]]]]))
+</code></pre><p>This does not seem like much, but as usual clojure code is very dense.</p><p>This is the markup for a bulma page header.  I've done this in
+HTML, JSX, and all kinds of templating systems, usually you have to scroll
+around to see the whole thing.  Me gusta hiccup.</p><p>And what if I told you that the snippet also contains the code
+for handling the burger menu?  CSS media queries turn it off above
+1024 pixels width, so make your window smaller.
+Clicking the burger menu then toggles the <code>:is-active</code> class -
+see the <code>(swap! expanded? false)</code>.</p><ul><li><code>session</code> and <code>expande</code> are <code>ratoms</code> - what goes for state in reagent
+programs.  <code>session</code> is the global application state (currently unused),
+<code>expanded?</code> is component local state.  A fresh atom is created when
+the component is mounted.</li><li><code>nav-link</code> and <code>navbar</code> are reagent components.  Any arguments are props.</li><li>Some very interesting shortcuts in there.  I invite to inspect
+the navbar in your developer console and see what <code>:nav.navbar.is-info&gt;div.container</code>
+turns into.  Or <code>:div#nav-menu.navbar-menu</code></li><li><code>hiccup</code> is the name for this style of clojure html templating.
+The original library is for server side rendering, but
+reagent adopts the syntax as a JSX replacement.</li></ul>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/tags-output/clojure/">clojure</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        
+        <a class="right" href="/posts-output/2022-10-17-clojure-tools-and-deps/">Clojure Tools and Deps &raquo;</a>
+        
+    </div>
+
+    
+
+
+</div>
+
+                        -->
+                        </div>
+
+                        <h3>Links</h3>
+                        <ul id="links">
+                            <li><a href="http://cryogenweb.org/docs/home.html">Cryogen Docs</a></li>
+                            
+                        </ul>
+                        
+                        <div id="recent">
+                            <h3>Recent Posts</h3>
+                            <ul>
+                                
+                                <li><a href="/posts-output/2022-10-18-learn-you-a-keeframe-part-1/">Learn You A Kee-Frame, Part 1</a></li>
+                                
+                                <li><a href="/posts-output/2022-10-17-clojure-tools-and-deps/">Clojure Tools and Deps</a></li>
+                                
+                            </ul>
+                        </div>
+                        
+                        
+                        <div id="tags">
+                            <h3>Tags</h3>
+                            <ul>
+                                
+                                <li><a href="/tags-output/clojure/">clojure</a></li>
+                                
+                            </ul>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            <footer>Copyright &copy; 2022 Juergen Gmeiner
+                <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+            </footer>
+        </div>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+        <script src="/js/highlight.pack.js" type="application/javascript"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        
+        
+</body>
+<script>window.onload = startlunr();</script>
+
+</html>

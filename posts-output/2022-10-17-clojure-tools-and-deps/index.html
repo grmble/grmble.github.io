@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Grmblog</title>
+    
+<meta name="keywords" content="clojure">
+
+<meta name="description" content="I used to write a lot of clojure, but I have not for some years.  In particular, I am
+pretty used to leiningen, but deps.edn is all new to me.  The information here is
+mostly from deps_and_cli_guide and deps_and_cli_refCommand line switches">
+
+<meta property="og:description" content="I used to write a lot of clojure, but I have not for some years.  In particular, I am
+pretty used to leiningen, but deps.edn is all new to me.  The information here is
+mostly from deps_and_cli_guide and deps_and_cli_refCommand line switches">
+
+<meta property="og:url" content="https://grmble.github.io/posts-output/2022-10-17-clojure-tools-and-deps/" />
+<meta property="og:title" content="Clojure Tools and Deps" />
+<meta property="og:type" content="article" />
+
+    <link rel="canonical" href="https://grmble.github.io/posts-output/2022-10-17-clojure-tools-and-deps/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700" rel="stylesheet"
+        type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <script src="https://unpkg.com/lunr/lunr.js"></script>
+    <script src="/js/lunr_index.js"></script>
+    <script src="/js/lunrclient.js"></script>
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Grmblog</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li ><a href="/">Home</a></li>
+                    <li ><a href="/archives/">Archives</a></li>
+                    
+                    <li >
+                        <a href="/pages-output/about/">About</a>
+                    </li>
+                    
+                    <li><a href="/feed.xml">RSS</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+        <!--/.container-fluid -->
+    </nav>
+
+
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-lg-9">
+                <div id="content">
+                    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">17 October 2022</div>
+        
+    </div>
+    <h2>Clojure Tools and Deps</h2>
+</div>
+<div>
+    <ol class="toc"><li><a href="#command-line-switches">Command line switches</a></li><ol><li><a href="#builtin-deps-alias">Builtin deps alias</a></li><li><a href="#builtin-tools-tool">Builtin tools tool</a></li></ol><li><a href="#dependencies">Dependencies</a></li><ol><li><a href="#git-dependencies">Git Dependencies</a></li><li><a href="#cognitect-test-runner">Cognitect test runner</a></li></ol><li><a href="#tools">Tools</a></li><ol><li><a href="#deps-new">deps-new</a></li><li><a href="#antq">antq</a></li></ol><li><a href="#neil">Neil</a></li></ol>
+    <p>I used to write a lot of clojure, but I have not for some years.  In particular, I am
+pretty used to leiningen, but <code>deps.edn</code> is all new to me.  The information here is
+mostly from <a href="https://clojure.org/guides/deps_and_cli">deps_and_cli_guide</a> and <a href="https://clojure.org/reference/deps_and_cli">deps_and_cli_ref</a></p><h2 id="command-line-switches">Command line switches</h2><ul><li><code>-X</code> to call a function with a map argument.  Also activates aliases.</li><li><code>-M</code> to call a main function.  Also activates aliases.</li><li><code>-A</code> to activate aliases.</li><li><code>-T</code> for tools - these do not use the project deps or paths, only from the alias plus . in paths.</li><li><code>-Sdescribe</code>, <code>-Spath</code>, <code>-Stree</code>: env and cmd parsing info, classpath, dependency tree.</li></ul><h3 id="builtin-deps-alias">Builtin deps alias</h3><p>The builtin deps alias does include the project classpath, it provides additional programs.</p><ul><li><code>-X:deps tree</code> - print dependency tree</li><li><code>-X:deps list</code> - print depencency list and license information</li><li><code>-X:deps aliases</code> - print all aliases</li><li><code>-X:deps mvn-pom</code> - generate or update a pom.xml</li><li><code>-X:deps git-resolve-tags</code> - resolve git coordinates tags to shas and update deps.edn</li><li><code>-X:deps find-versions</code> - find versions for <code>:lib</code> or <code>:tool</code></li></ul><p>It also has <code>help/doc</code> and <code>help/dir</code> to introspect how a tool can be used.</p><pre><code class="bash">clojure -A:deps -Ttools help/dir  # listing functions for the tools tool
+</code></pre><h3 id="builtin-tools-tool">Builtin tools tool</h3><ul><li><code>clj -Ttools list</code> - list installed tools</li><li><code>clj -Ttools install-latest :lib some.dep/coords</code> - install latest version of tool.  If already installed works also with the tool name <code>:tool toolname</code></li><li><code>clj -Ttools show toolname</code> - show usage information</li></ul><h2 id="dependencies">Dependencies</h2><p>In <code>deps.edn</code>, under <code>:deps</code>.  The library name is the key, followed by the version.</p><ul><li>Maven: <code>{:mvn/version "x.y.z"}</code></li><li>Local: <code>{:local/root "../relative-dir"}</code></li><li>Local Jar: <code>{:local/root "/path/to/blubb.jar"}</code></li><li>Git: <code>{:git/tag "some-tag" :git/sha "shorthash"}</code></li></ul><h3 id="git-dependencies">Git Dependencies</h3><p>For Git, the libary name is <code>io.github.grmble/repo</code>.</p><p>Use <code>git rev-parse --short some-tag</code> to get the hash.</p><p>For remote repos: <code>clojure -X:deps git-resolve-tags</code></p><h3 id="cognitect-test-runner">Cognitect test runner</h3><p>Finds and run <code>clojure.test</code> tests in your program.</p><p>Run the tests using <code>clj -X:test</code></p><pre><code class="clojure">{:aliases
+ {:test {:extra-paths ["test"]
+         :extra-deps {io.github.cognitect-labs/test-runner
+                      {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                       :sha "9e35c979860c75555adaff7600070c60004a0f44"}}
+         :main-opts ["-m" "cognitect.test-runner"]
+         :exec-fn cognitect.test-runner.api/test}}}
+</code></pre><p>Or <code>neil add test</code></p><h2 id="tools">Tools</h2><h3 id="deps-new">deps-new</h3><pre><code class="bash">clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new
+</code></pre><p>For help</p><pre><code class="bash">clojure -A:deps -Tnew help/doc
+</code></pre><p>Create an application (also try <code>lib</code> or <code>template</code> instead of <code>app</code>)</p><pre><code class="bash">clojure -Tnew app :name user/appname
+</code></pre><p>Create a new project from a template</p><pre><code class="bash">clojure -Tnew :template io.github.whatever/blubb :name user/project
+</code></pre><h3 id="antq">antq</h3><pre><code>clojure -Ttools install-latest :lib com.github.liquidz/antq :as antq
+</code></pre><p>To list outdated dependencies</p><pre><code class="bash">clojure -Tantq outdated  # :upgrade true
+
+clojure -A:deps -Tantq help/doc
+</code></pre><h2 id="neil">Neil</h2><p>Neil is a <code>babashka</code> helper, installation instructions at https://github.com/babashka/neil</p><ul><li>add common aliases and deps (cognitect test runner, build tools build.clj, ...).</li><li>create new projects using deps.new</li><li><code>search</code> clojars for a artifacts</li><li><code>upgrade</code> all libs in deps.edn</li><li><code>test</code> to run tests</li></ul>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/tags-output/clojure/">clojure</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/2022-10-18-learn-you-a-keeframe-part-1/">&laquo; Learn You A Kee-Frame, Part 1</a>
+        
+        
+    </div>
+
+    
+
+
+</div>
+
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div id="sidebar">
+                    <h3>Search</h3>
+
+                    <!--- Search form -->
+                    <form id="lunrSearchForm" name="lunrSearchForm" action="/">
+                        <input class="search-input" name="q" placeholder="Enter search term" type="text">
+                        <input class="button nopadding" type="submit" value="Search">
+                    </form>
+                    <!--
+                <div class="loading" id="loading-div">
+                    <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+                </div>
+
+                -->
+
+                    <div id="right" class="clearfix">
+                        <div class="resultCount" id="resultCount"></div>
+                        <hr />
+                        <div id="searchResults">
+                            <!--
+                      
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">17 October 2022</div>
+        
+    </div>
+    <h2>Clojure Tools and Deps</h2>
+</div>
+<div>
+    <ol class="toc"><li><a href="#command-line-switches">Command line switches</a></li><ol><li><a href="#builtin-deps-alias">Builtin deps alias</a></li><li><a href="#builtin-tools-tool">Builtin tools tool</a></li></ol><li><a href="#dependencies">Dependencies</a></li><ol><li><a href="#git-dependencies">Git Dependencies</a></li><li><a href="#cognitect-test-runner">Cognitect test runner</a></li></ol><li><a href="#tools">Tools</a></li><ol><li><a href="#deps-new">deps-new</a></li><li><a href="#antq">antq</a></li></ol><li><a href="#neil">Neil</a></li></ol>
+    <p>I used to write a lot of clojure, but I have not for some years.  In particular, I am
+pretty used to leiningen, but <code>deps.edn</code> is all new to me.  The information here is
+mostly from <a href="https://clojure.org/guides/deps_and_cli">deps_and_cli_guide</a> and <a href="https://clojure.org/reference/deps_and_cli">deps_and_cli_ref</a></p><h2 id="command-line-switches">Command line switches</h2><ul><li><code>-X</code> to call a function with a map argument.  Also activates aliases.</li><li><code>-M</code> to call a main function.  Also activates aliases.</li><li><code>-A</code> to activate aliases.</li><li><code>-T</code> for tools - these do not use the project deps or paths, only from the alias plus . in paths.</li><li><code>-Sdescribe</code>, <code>-Spath</code>, <code>-Stree</code>: env and cmd parsing info, classpath, dependency tree.</li></ul><h3 id="builtin-deps-alias">Builtin deps alias</h3><p>The builtin deps alias does include the project classpath, it provides additional programs.</p><ul><li><code>-X:deps tree</code> - print dependency tree</li><li><code>-X:deps list</code> - print depencency list and license information</li><li><code>-X:deps aliases</code> - print all aliases</li><li><code>-X:deps mvn-pom</code> - generate or update a pom.xml</li><li><code>-X:deps git-resolve-tags</code> - resolve git coordinates tags to shas and update deps.edn</li><li><code>-X:deps find-versions</code> - find versions for <code>:lib</code> or <code>:tool</code></li></ul><p>It also has <code>help/doc</code> and <code>help/dir</code> to introspect how a tool can be used.</p><pre><code class="bash">clojure -A:deps -Ttools help/dir  # listing functions for the tools tool
+</code></pre><h3 id="builtin-tools-tool">Builtin tools tool</h3><ul><li><code>clj -Ttools list</code> - list installed tools</li><li><code>clj -Ttools install-latest :lib some.dep/coords</code> - install latest version of tool.  If already installed works also with the tool name <code>:tool toolname</code></li><li><code>clj -Ttools show toolname</code> - show usage information</li></ul><h2 id="dependencies">Dependencies</h2><p>In <code>deps.edn</code>, under <code>:deps</code>.  The library name is the key, followed by the version.</p><ul><li>Maven: <code>{:mvn/version "x.y.z"}</code></li><li>Local: <code>{:local/root "../relative-dir"}</code></li><li>Local Jar: <code>{:local/root "/path/to/blubb.jar"}</code></li><li>Git: <code>{:git/tag "some-tag" :git/sha "shorthash"}</code></li></ul><h3 id="git-dependencies">Git Dependencies</h3><p>For Git, the libary name is <code>io.github.grmble/repo</code>.</p><p>Use <code>git rev-parse --short some-tag</code> to get the hash.</p><p>For remote repos: <code>clojure -X:deps git-resolve-tags</code></p><h3 id="cognitect-test-runner">Cognitect test runner</h3><p>Finds and run <code>clojure.test</code> tests in your program.</p><p>Run the tests using <code>clj -X:test</code></p><pre><code class="clojure">{:aliases
+ {:test {:extra-paths ["test"]
+         :extra-deps {io.github.cognitect-labs/test-runner
+                      {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                       :sha "9e35c979860c75555adaff7600070c60004a0f44"}}
+         :main-opts ["-m" "cognitect.test-runner"]
+         :exec-fn cognitect.test-runner.api/test}}}
+</code></pre><p>Or <code>neil add test</code></p><h2 id="tools">Tools</h2><h3 id="deps-new">deps-new</h3><pre><code class="bash">clojure -Ttools install-latest :lib io.github.seancorfield/deps-new :as new
+</code></pre><p>For help</p><pre><code class="bash">clojure -A:deps -Tnew help/doc
+</code></pre><p>Create an application (also try <code>lib</code> or <code>template</code> instead of <code>app</code>)</p><pre><code class="bash">clojure -Tnew app :name user/appname
+</code></pre><p>Create a new project from a template</p><pre><code class="bash">clojure -Tnew :template io.github.whatever/blubb :name user/project
+</code></pre><h3 id="antq">antq</h3><pre><code>clojure -Ttools install-latest :lib com.github.liquidz/antq :as antq
+</code></pre><p>To list outdated dependencies</p><pre><code class="bash">clojure -Tantq outdated  # :upgrade true
+
+clojure -A:deps -Tantq help/doc
+</code></pre><h2 id="neil">Neil</h2><p>Neil is a <code>babashka</code> helper, installation instructions at https://github.com/babashka/neil</p><ul><li>add common aliases and deps (cognitect test runner, build tools build.clj, ...).</li><li>create new projects using deps.new</li><li><code>search</code> clojars for a artifacts</li><li><code>upgrade</code> all libs in deps.edn</li><li><code>test</code> to run tests</li></ul>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/tags-output/clojure/">clojure</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/2022-10-18-learn-you-a-keeframe-part-1/">&laquo; Learn You A Kee-Frame, Part 1</a>
+        
+        
+    </div>
+
+    
+
+
+</div>
+
+                        -->
+                        </div>
+
+                        <h3>Links</h3>
+                        <ul id="links">
+                            <li><a href="http://cryogenweb.org/docs/home.html">Cryogen Docs</a></li>
+                            
+                        </ul>
+                        
+                        <div id="recent">
+                            <h3>Recent Posts</h3>
+                            <ul>
+                                
+                                <li><a href="/posts-output/2022-10-18-learn-you-a-keeframe-part-1/">Learn You A Kee-Frame, Part 1</a></li>
+                                
+                                <li><a href="/posts-output/2022-10-17-clojure-tools-and-deps/">Clojure Tools and Deps</a></li>
+                                
+                            </ul>
+                        </div>
+                        
+                        
+                        <div id="tags">
+                            <h3>Tags</h3>
+                            <ul>
+                                
+                                <li><a href="/tags-output/clojure/">clojure</a></li>
+                                
+                            </ul>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            <footer>Copyright &copy; 2022 Juergen Gmeiner
+                <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+            </footer>
+        </div>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+        <script src="/js/highlight.pack.js" type="application/javascript"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        
+        
+</body>
+<script>window.onload = startlunr();</script>
+
+</html>
