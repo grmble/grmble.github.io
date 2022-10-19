@@ -9,14 +9,11 @@ mostly from [deps_and_cli_guide] and [deps_and_cli_ref]
 
 ## Command line switches
 
-* `-X` to activate aliases and call a function from the command line with a map argument.
-  The map is given as key-paths and values.
-* `-Sdescribe`, `-Spath`, `-Stree`: env and cmd parsing info, classpath, dependency tree.
-* `-A` activates aliases. The aliases are defined under `:aliases` in `deps.edn`. 
-  Typically they get `:extra-paths` and `:extra-deps`.
+* `-X` to call a function with a map argument.  Also activates aliases.
+* `-M` to call a main function.  Also activates aliases.
+* `-A` to activate aliases.
 * `-T` for tools - these do not use the project deps or paths, only from the alias plus . in paths.
-* `-M` is outdated - but it takes a namespace, separated by a colon.  NS must have public `-main` defn,
-  no keywordification of arguments.
+* `-Sdescribe`, `-Spath`, `-Stree`: env and cmd parsing info, classpath, dependency tree.
 
 
 ### Builtin deps alias
@@ -40,7 +37,7 @@ clojure -A:deps -Ttools help/dir  # listing functions for the tools tool
 
 * `clj -Ttools list` - list installed tools
 * `clj -Ttools install-latest :lib some.dep/coords` - install latest version of tool.  If already installed works also with the tool name `:tool toolname`
-* `clj -Ttools show tooname` - show usage information
+* `clj -Ttools show toolname` - show usage information
 
 ## Dependencies
 
