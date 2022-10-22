@@ -11,7 +11,7 @@ Let's talk about [The Elm Architecture][TEA] for a bit.  You need 3 things:
 
 Elm takes care of the rest.  Events emitted by the view are sent
 to the update function, and any side effects will result in more calls
-to the update function.  After model changes, an async re-render is triggered.
+to the update function.  When the model changes, an async re-render is triggered.
 All of this is done in a type safe manner (`View` really returns `Html Msg`, 
 and `Update` returns `(Model, Cmd Msg)`).
 
@@ -80,11 +80,234 @@ a params function that is called with the route data
 when the URL changes. If this function
 goes from nil to non-nil, the `:start` function is called.
 If it goes from non-nil to nil, the `:stop` function is called.
-And if goes from one non-nil value to another one,
+And if it goes from one non-nil value to another,
 the `:stop` function is called with the old value,
 then the `:start` function is called with the new value.
 
 
+## Hold my Kee-Frame I am going in
 
+Converting a reagent app to kee-frame is surprisingly easy:
+the `start!` function only requires a root component,
+everything else is optional.  That is how I started,
+and then I added config loading, a spec and routing.
+
+### Initialization
+
+This replaces the intialization code in `main.cljs`
+(formerly `core.cljs`):
+
+```clojure
+;; init! is called initially by shadlow-cljs (init-fn)
+;; after-load! is called after every load
+(defn ^:dev/after-load after-load! []
+  (k/start! {;; renders into dom element #app - hard coded
+             :root-component [loader [page/current-page]]
+             :initial-db initial-db
+             :app-db-spec ::grmble.lyakf.frontend.spec/db-spec
+             :routes routes}))
+(defn init! []
+  (>evt [:load-config])
+  (after-load!)
+  (println "init! complete"))
+```
+
+`>evt` and `<sub` are alternative syntax for `dispatch` and `subscribe`.
+This is straight from the re-frame documentation: [Lambda Island Naming][LIN]
+
+I don't want hard coded configuration - I want to be able to change things at deployment
+time.  That is what `(>evt [:load-config])` and `[loader [page/current-page]]`
+is about.  Again from the re-frame documentation: 
+[Loading Initial Data][loading_initial_data]
+
+
+```clojure
+(rf/reg-event-fx :load-config
+                 (fn [_ _]
+                   {:http-xhrio {:uri             "config.json"
+                                 :method          :get
+                                 :response-format (ajax/json-response-format {:keywords? true})
+                                 :on-success [:config-loaded]
+                                 :on-error [:config-not-found]}}))
+(rf/reg-event-db :config-loaded
+                 (fn [db [_ config]]
+                   (-> db
+                       (assoc :config (merge (:config db) config))
+                       (assoc-in [:ui :initialized?] true))))
+(rf/reg-event-db :config-not-found
+                 (fn [db _]
+                   (assoc-in db [:ui :initialized?] true)))
+
+(defn loader [body]
+  (error/boundary
+   (if (and true (<sub [:initialized?]))
+     body
+     [page/loading-page])))
+```
+
+I did play around with effect chaining and glimt, but for this case
+I prefer plain re-frame.  Chaining does not buy much, especially with
+named events.  I think glimt would be nice for a a view that has to 
+change as the request progresses.
+
+`error/boundary` on the other hand is *very*, *very* useful.  I have a habit
+of writing `[:input "xxx"]` instead of `[:input {:value "xxx"}]` - without
+`error/boundary` this will produce a white screen.  With `error/boundary` I get a helpful message telling 
+me what went wrong.
+
+The `(and true)` bit is for cheap "pre-rendered" html:  I toggle it to false
+and copy the the app node from the browsers development tools into `index.html`.
+
+And this is the subscription for `:initialized?`:
+
+```clojure
+(rf/reg-sub :initialized?
+            (fn [db] (-> db :ui :initialized?)))
+```
+
+### Spec
+
+But ... what config are we loading exactly?  I am glad you asked!  
+Let us look at the spec:
+
+```clojure
+(s/def ::db-spec (s/keys :req-un [::ui
+                                  ::config
+                                  ;; there is more, but let's ignore that for now
+                                  ]))
+
+(s/def ::ui (s/keys :req-un [::initialized?]))
+(s/def ::initialized? boolean?)
+
+(s/def ::config (s/keys :req-un [::show-dev-tab?]))
+(s/def ::show-dev-tab? boolean?)
+```
+
+The `:app-db-spec` option to `k/start!` starts validating
+the app db everytime it changes (on initialization too!).
+The error messages come from `expound` and are very helpful.
+
+
+### Routing
+
+```clojure
+(def routes
+  [["/" :home]
+   ["/data" :data]
+   ["/config" :config]
+   ["/dev" :dev]])
+```
+
+There are 3 options:
+
+* a controller that puts the current route into app db
+* using `k/case-route` to subscribe to the route data
+* `(rf/subscribe [:kee-frame/route])` is used by `k/case-route`,
+  this could be used in views that need the current route.
+  It is undocument so there be dragons.
+
+```clojure
+(defn current-page []
+  [:<>
+   (k/case-route (comp :name :data)
+                 :home [show-tab :home [home-tab]]
+                 :data [show-tab :data [data-tab]]
+                 :config [show-tab :config [config-tab]]
+                 :dev [show-tab :dev [dev/dev-tab]]
+                 [loading-tab])])
+```
+
+I chose option B because I was afraid of event ping-pong,
+but I assume as long as you don't use `:navigate-to`
+you should be safe.  `k/case-route` does mean that I propagate
+the current route through `[show-tab]` into `[navbar]`.
+
+I am not showing the changes to `[navbar]`: it
+just takes a prop now with the current tab
+(so it can be marked as active), and
+the dev tab is displayed conditionally.
+
+### The Dev Tab
+
+For now, it just contains documenation links.  I tend
+to have lots of browser tabs open.  With this example
+project they were so many that I had trouble finding the
+project tab again.
+
+```clojure
+(defn dev-tab []
+  [:section.section
+   [:h1.title "Development Tools"]
+   [:h2.subtitle "Useful Links"]
+   [:ul
+    [link-entry "Bulma Docs" "https://bulma.io/documentation/"]
+    [link-entry "Clojure Spec Guide" "https://clojure.org/guides/spec"]
+    ;; there is more, if you want the full list check the source code
+    ]])
+```
+
+Now I can close all those browser tabs because I can easily
+open the documentation page again.
+
+Be aware that when the dev tab is configured away,
+it is still present in the code.  A random user will not find
+it.  But anybody who knows about it can just append `#/dev` to the browser
+location and will see the content.
+
+That is precisely why I like the method.  As a real world example,
+I am in a team for a company wide search engine.  We use
+a routing parameter without UI to control the display of
+the search engine score.  We can toggle it on to diagnose problems,
+but the users do not see it and we not have to answer questions
+about it.
+
+But a determined attacker will read the javascript, and 
+he will find your little easter egg.  Search engine scores
+or documentation links are fine.  Admin passwords would be
+very, very bad.
+
+
+## Odds and ends
+
+
+### Error printing
+This prints errors to the
+browser console instead of the terminal.  I find
+this much nicer when playing around in the browser,
+and I did not know about this until now.
+
+```clojure
+(enable-console-print!)
+```
+
+### Components vs function calls
+
+`[my-component]` is using a component,
+`(my-component)` is a function call.  If `my-component` subscribes
+to events, this leads to a re-frame error pointing you to
+[Use a Subscription in an Event Handler][subscription_in_event_handler].
+This is a bit misleading: it explains a more advanced method of
+producing that error.
+
+### Subscriptions vs Local State vs Props
+
+As of right now, the example program uses all three.
+
+* The initialization code uses app-db.  An argument could be
+  made that the `initialized?` flag does not need to be
+  in app db.  But `:config` is stored in the app db, so
+  I kept it as simple as possible and put everything there.
+* The navigation bar still uses a reagent atom for its
+  burger menu toggle (`:expanded?`).  If some other component
+  would need that information I would put it in app db,
+  but it doesn't so I didn't.
+* I chose to use `k/case-route` to render the component
+  for the current tab, and the current tab is passed as a prop
+  to `[navbar]` and `[nav-link]`.  This is still okay but
+  borderline: if other views need that information 
+  I will revisit that decision.
 
 [TEA]: https://guide.elm-lang.org/architecture/
+[LIN]: https://day8.github.io/re-frame/correcting-a-wrong/#lambdaisland-naming-lin
+[loading_initial_data]: https://day8.github.io/re-frame/Loading-Initial-Data/
+[subscription_in_event_handler]: https://day8.github.io/re-frame/FAQs/UseASubscriptionInAnEventHandler/
