@@ -207,7 +207,7 @@ see the `(swap! expanded? false)`.
 
 ## Release Build on GH Pages
 
-[https://grmble.github.io/learn-you-a-keeframe/part1/](https://grmble.github.io/learn-you-a-keeframe/part1/)
+[Demo: Learn you a Kee-Frame, Part 1][lyakf_part1]
 
 78 KB compressed.  Not a bad start.
 
@@ -217,3 +217,4 @@ see the `(swap! expanded? false)`.
 [keeframe]: https://github.com/ingesolvoll/kee-frame
 [bulma]: https://bulma.io/
 [calva]: https://calva.io/
+[lyakf_part1]: https://grmble.github.io/learn-you-a-keeframe/part1/

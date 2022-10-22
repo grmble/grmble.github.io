@@ -105,7 +105,10 @@ This replaces the intialization code in `main.cljs`
              :root-component [loader [page/current-page]]
              :initial-db initial-db
              :app-db-spec ::grmble.lyakf.frontend.spec/db-spec
-             :routes routes}))
+             :routes routes
+             ;; route-hashing does not work with gh pages deployment
+             ;; via compile time BASE-PATH
+             :hash-routing? false}))
 (defn init! []
   (>evt [:load-config])
   (after-load!)
@@ -191,8 +194,12 @@ The error messages come from `expound` and are very helpful.
 ### Routing
 
 ```clojure
+;; another compile time constant - base-path for router
+(goog-define ^String BASE-PATH "")
+
 (def routes
-  [["/" :home]
+  [BASE-PATH
+   ["/" :home]
    ["/data" :data]
    ["/config" :config]
    ["/dev" :dev]])
@@ -222,10 +229,41 @@ but I assume as long as you don't use `:navigate-to`
 you should be safe.  `k/case-route` does mean that I propagate
 the current route through `[show-tab]` into `[navbar]`.
 
-I am not showing the changes to `[navbar]`: it
-just takes a prop now with the current tab
-(so it can be marked as active), and
-the dev tab is displayed conditionally.
+`[navbar]` also needs to be changed to use `k/path-for`
+for linking - otherwise the deployment to github pages
+does not work.  Locally, routes are nested with a
+compile time `BASE-PATH` of `""`, for github pages
+the deployment script sets it to `"/learn-you-a-keeframe/partX"`.
+
+The release build for github pages is done by [bb.edn][lyakf_bb_edn].
+
+```clojure
+(defn nav-link [current-tab title tab]
+  [:a.navbar-item
+   {:href  (k/path-for [tab])
+    :class (when (= tab current-tab) "is-active")}
+   title])
+
+(defn navbar [tab]
+  (r/with-let [expanded? (r/atom false)]
+    [:nav.navbar.is-info>div.container
+     [:div.navbar-brand
+      [:a.navbar-item {:href  (k/path-for [:home])
+                       :style {:font-weight :bold}} "Learn You A Kee-Frame"]
+      [:span.navbar-burger.burger
+       {:data-target :nav-menu
+        :on-click #(swap! expanded? not)
+        :class (when @expanded? :is-active)}
+       [:span] [:span] [:span]]]
+     [:div#nav-menu.navbar-menu
+      {:class (when @expanded? :is-active)}
+      [:div.navbar-start
+       [nav-link tab "Home" :home]
+       [nav-link tab "Data" :data]
+       [nav-link tab "Config" :config]
+       (when (<sub [:show-dev-tab?])
+         [nav-link tab "Dev" :dev])]]]))
+```
 
 ### The Dev Tab
 
@@ -307,7 +345,21 @@ As of right now, the example program uses all three.
   borderline: if other views need that information 
   I will revisit that decision.
 
+## Release Build on GH Pages
+
+[Demo: Learn you a Kee-Frame, Part 2][lyakf_part2]
+
+211 KB compressed.  Part 1 was a glorified `Hello world`.  Part 2
+does not look much different in the browser, but it does perform
+some work and pulls in more libraries.
+
+* Spec Validation: `kee-frame`, `spec.alpha`
+* Configuration loading: `re-frame`, `re-frame-http-fx`, `cljs-ajax`
+* Routing: `kee-frame`, `reitit`
+
 [TEA]: https://guide.elm-lang.org/architecture/
 [LIN]: https://day8.github.io/re-frame/correcting-a-wrong/#lambdaisland-naming-lin
 [loading_initial_data]: https://day8.github.io/re-frame/Loading-Initial-Data/
 [subscription_in_event_handler]: https://day8.github.io/re-frame/FAQs/UseASubscriptionInAnEventHandler/
+[lyakf_bb_edn]: https://github.com/grmble/learn-you-a-keeframe/blob/master/bb.edn
+[lyakf_part2]: https://grmble.github.io/learn-you-a-keeframe/part2/
