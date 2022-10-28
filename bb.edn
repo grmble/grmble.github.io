@@ -9,6 +9,6 @@
   serve {:doc "Run the builtin server for interactive use."
          :task (clojure "-X:serve")}
   lunr {:doc "Rebuild Lunr index. RUN THIS FOR GH PAGES VERSION."
-        :depends [build]
+        :depends [clean build]
         :task (do (println "Building Lunr index.")
                   (shell "node build-index.js"))}}}

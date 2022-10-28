@@ -347,7 +347,8 @@ As of right now, the example program uses all three.
 
 ## Release Build on GH Pages
 
-[Demo: Learn you a Kee-Frame, Part 2][lyakf_part2]
+* [Demo: Learn you a Kee-Frame, Part 2][lyakf_part2]
+* [Source code][lyakf_part2_source]
 
 211 KB compressed.  Part 1 was a glorified `Hello world`.  Part 2
 does not look much different in the browser, but it does perform
@@ -363,3 +364,4 @@ some work and pulls in more libraries.
 [subscription_in_event_handler]: https://day8.github.io/re-frame/FAQs/UseASubscriptionInAnEventHandler/
 [lyakf_bb_edn]: https://github.com/grmble/learn-you-a-keeframe/blob/master/bb.edn
 [lyakf_part2]: https://grmble.github.io/learn-you-a-keeframe/part2/
+[lyakf_part2_source]: https://github.com/grmble/learn-you-a-keeframe/tree/part2
