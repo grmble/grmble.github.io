@@ -26,7 +26,7 @@ but I&#39;ve never used it.But I continue to hear good things about it, so here 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
-    <script src="https://unpkg.com/lunr/lunr.js"></script>
+    <script src="/js/lunr.min.js"></script>
     <script src="/js/lunr_index.js"></script>
     <script src="/js/lunrclient.js"></script>
     <link href="/css/screen.css" rel="stylesheet" type="text/css" />
@@ -198,7 +198,7 @@ around to see the whole thing.  Me gusta hiccup.</p><p>And what if I told you th
 for handling the burger menu?  CSS media queries turn it off above
 1024 pixels width, so make your window smaller.
 Clicking the burger menu then toggles the <code>:is-active</code> class -
-see the <code>(swap! expanded? false)</code>.</p><ul><li><code>session</code> and <code>expande</code> are <code>ratoms</code> - what goes for state in reagent
+see the <code>(swap! expanded? not)</code>.</p><ul><li><code>session</code> and <code>expande</code> are <code>ratoms</code> - what goes for state in reagent
 programs.  <code>session</code> is the global application state (currently unused),
 <code>expanded?</code> is component local state.  A fresh atom is created when
 the component is mounted.</li><li><code>nav-link</code> and <code>navbar</code> are reagent components.  Any arguments are props.</li><li>Some very interesting shortcuts in there.  I invite to inspect
@@ -384,7 +384,7 @@ around to see the whole thing.  Me gusta hiccup.</p><p>And what if I told you th
 for handling the burger menu?  CSS media queries turn it off above
 1024 pixels width, so make your window smaller.
 Clicking the burger menu then toggles the <code>:is-active</code> class -
-see the <code>(swap! expanded? false)</code>.</p><ul><li><code>session</code> and <code>expande</code> are <code>ratoms</code> - what goes for state in reagent
+see the <code>(swap! expanded? not)</code>.</p><ul><li><code>session</code> and <code>expande</code> are <code>ratoms</code> - what goes for state in reagent
 programs.  <code>session</code> is the global application state (currently unused),
 <code>expanded?</code> is component local state.  A fresh atom is created when
 the component is mounted.</li><li><code>nav-link</code> and <code>navbar</code> are reagent components.  Any arguments are props.</li><li>Some very interesting shortcuts in there.  I invite to inspect
