@@ -9,7 +9,7 @@
 It is time to write a more substantial example.
 We are going to write a lifter's log, with records (haha!) of
 weights lifted and fancy charts.  By pure chance I already
-have such a thing and I love it, except for 2 deficencies:
+have such a thing and I love it, except for 2 deficiencies:
 data entry sucks and it does not run on my phone.
 
 ## Requirements
@@ -91,10 +91,10 @@ as an afterthought.
 
 You may notice that in our program definition,
 there is no place to store the current state.
-I found it hard to work with these deeply nested
-data structures, so I decided to put the
-state in a separate location.  I also needed 
-something that I could put in a subscriptions
+I found the program definitions hard
+to work with, so I decided to do as much work
+as possible with a simpler data structure.
+I also needed something that I could put in subscriptions
 and events.
 
 ```clojure
@@ -106,7 +106,7 @@ and events.
 ```
 
 Boo, `defrecord`, why you no take docstring?  Yeah I know,
-java class, but I sure wish `defrecord` would take a docstring.
+a Java class is generated, but I sure wish `defrecord` would take a docstring.
 
 Anyway, the neat thing is that a selector can do 2 tricks:
 It can read from a program definition and give you the `ExerciseRef`
@@ -132,6 +132,7 @@ levels deep meaning alternating exercises are not quite as irregular.
 (complete-with-slugs "800x1" glp-upper-split data (nth sels 2)))
 ;; => [#{"squat" "bench" "deadlift"} {0 {1 {:alternative 1}}}]
 ```
+
 I am using `complete` instead of `complete-with-slug` because
 it is easier to thread around.  But when the program completes
 we also get a set of completed exercises (note that "overhead" is
@@ -141,9 +142,9 @@ increased for the next iteration.
 ### Events
 
 There are no side effects yet, so all the additional event handlers
-are straigt forward `reg-effect-db`.  I am not showing them all,
+are `reg-effect-db`.  I am not showing them all,
 but there is a button on the dev tab now that will set
-distinct weigts for all defined exercises.
+distinct weights for all defined exercises.
 
 ```clojure
 (defn complete-handler [db [_ selector repsets]]
@@ -198,7 +199,7 @@ things easy and easy things hard."?
 > -- Me (2022)
 
 After that realization I abused subscriptions wherever I could.
-If you are going to drink the cool-aid, DRINK ALL THE COOL-AID.
+If you are going to drink the cool-aid, why not DRINK ALL THE COOL-AID?
 
 ```clojure
 (rf/reg-sub :current-workout-info
@@ -239,15 +240,15 @@ messages.  Choose any two.  Instaparse gives you all three.
 
 Anyway, the parser is used for validating these repsets. Lots of suggestions
 will be initially invalid because they say something like "80x3x2+".
-This is bad UX but I don't want to spend too much time on UI  -
-it is possible that I will switch this over to React Native.
+This is bad UX but I don't want to spend time on UI  -
+we are aiming for PWA, but React Native remains a backup plan.
 
 I did spend time on making the controlled input field behave correctly.
 I did not want to put these into `app-db` because a) apparently this can
 lead to strange behaviour with fast typing and b) `app-db` is complicated
 enough already.
 
-So I tried using local state, and I am now convinced that it is not possible to make
+I tried using local state, and I am now convinced that it is not possible to make
 this work with only one atom.  With one atom either your on-change
 wins which will break updates from subscriptions, or the subscriptions
 win which means your text field will not change.
@@ -263,11 +264,13 @@ the changed value.  But this caused flicker - I would delete
 the trailing +, then get one event with a trailing +,
 and another one with the correct new value.
 
-The re-frame documentation recommends taking a look
-at [re-com][re-com_text_input], but I found it hard
-to understand because of all the abstraction to
-make it work as a base component.
+Re-frame documentation points you
+at [re-com][re-com_text_input] for this, but I found it hard
+to understand because of all the abstraction - it is a workhorse,
+not an example.
 
+So here is my simple version - again, the subscription
+has to echo your change, or this will not work.
 
 ```clojure
 (defn- exercise-wizard [_ _ _ suggestion repsets]
@@ -294,12 +297,12 @@ make it work as a base component.
 ## Odds and Ends
 
 There is a full spec for app db.  It is given as an argument to `keeframe.core/start!`,
-and it boggles my mind how much this single change helps.
+and it boggles my mind how much this helps.
 I have not written much clojure since I changed jobs in 2014, and
 I vividly remember hunting down typos in deeply nested maps.
 
 But kids these days, they are not happy with `spec.alpha`!  Now there is `malli` too!
-I was wondering if I had to choose a camp and I tried to evaluate both.
+I was wondering if I had to choose a camp and so I evaluated both.
 
 Now I think it does not matter.  They are both great libraries.  I like being
 able to sprinkle little bits around the codebase with `spec.alpha`, and `malli` is probably nicer
