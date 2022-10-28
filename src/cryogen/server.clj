@@ -17,7 +17,7 @@
 
 (def extra-config-dev
   "Add dev-time configuration overrides here, such as `:hide-future-posts? false`"
-  {})
+  {:hide-future-posts? false})
 
 (defn init [& fast?]
   (load-plugins)

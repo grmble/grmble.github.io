@@ -191,7 +191,7 @@ And what if I told you that the snippet also contains the code
 for handling the burger menu?  CSS media queries turn it off above
 1024 pixels width, so make your window smaller. 
 Clicking the burger menu then toggles the `:is-active` class - 
-see the `(swap! expanded? false)`.
+see the `(swap! expanded? not)`.
 
 * `session` and `expande` are `ratoms` - what goes for state in reagent
   programs.  `session` is the global application state (currently unused),

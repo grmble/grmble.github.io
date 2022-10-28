@@ -11,4 +11,4 @@
            :serve {:exec-fn   cryogen.server/serve
                    :exec-args {:port 3000}}
            :fast {:exec-fn   cryogen.server/serve
-                  :exec-args {:fast true}}}}
+                  :exec-args {:fast true :port 3000}}}}
