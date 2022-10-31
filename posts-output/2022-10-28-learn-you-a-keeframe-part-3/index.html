@@ -193,8 +193,8 @@ re-frames signal graph is the greatest thing since sliced bread,
 and for once I am not joking.</p><pre><code class="clojure">(rf/reg-sub :workout-selectors
             (fn [_qv]
               [(rf/subscribe [:current-program])
-               (rf/subscribe [:current])])
-            (fn [[program {:keys [data]}] _]
+               (rf/subscribe [:current :data])])
+            (fn [[program data] _]
               (program/current-selectors program data)))
 </code></pre><p>I had a really hard time with the current workout selectors.
 The plan was to put this in the transient part of <code>app-db</code>,
@@ -211,8 +211,8 @@ If you are going to drink the cool-aid, why not DRINK ALL THE COOL-AID?</p><pre>
               [(rf/subscribe [:current-program])
                (rf/subscribe [:exercises])
                (rf/subscribe [:workout-selectors])
-               (rf/subscribe [:current])])
-            (fn [[program exercises selectors {:keys [data]}] _]
+               (rf/subscribe [:current :data])])
+            (fn [[program exercises selectors data] _]
               (let [completed?     (program/mk-completed? data)
                     uncompleted    (remove completed? selectors)]
                 (mapv (fn [sel]
@@ -295,6 +295,8 @@ now.  Also additional libraries are pulled in</p><ul><li>Parsing: <code>instapar
 
 
     <div id="prev-next">
+        
+        <a href="/posts-output/2022-10-31-learn-you-a-keeframe-part-4/">&laquo; Learn You A Kee-Frame, Part 4</a>
         
         
         <a class="right" href="/posts-output/2022-10-22-learn-you-a-keeframe-part-2/">Learn You A Kee-Frame, Part 2 &raquo;</a>
@@ -462,8 +464,8 @@ re-frames signal graph is the greatest thing since sliced bread,
 and for once I am not joking.</p><pre><code class="clojure">(rf/reg-sub :workout-selectors
             (fn [_qv]
               [(rf/subscribe [:current-program])
-               (rf/subscribe [:current])])
-            (fn [[program {:keys [data]}] _]
+               (rf/subscribe [:current :data])])
+            (fn [[program data] _]
               (program/current-selectors program data)))
 </code></pre><p>I had a really hard time with the current workout selectors.
 The plan was to put this in the transient part of <code>app-db</code>,
@@ -480,8 +482,8 @@ If you are going to drink the cool-aid, why not DRINK ALL THE COOL-AID?</p><pre>
               [(rf/subscribe [:current-program])
                (rf/subscribe [:exercises])
                (rf/subscribe [:workout-selectors])
-               (rf/subscribe [:current])])
-            (fn [[program exercises selectors {:keys [data]}] _]
+               (rf/subscribe [:current :data])])
+            (fn [[program exercises selectors data] _]
               (let [completed?     (program/mk-completed? data)
                     uncompleted    (remove completed? selectors)]
                 (mapv (fn [sel]
@@ -565,6 +567,8 @@ now.  Also additional libraries are pulled in</p><ul><li>Parsing: <code>instapar
 
     <div id="prev-next">
         
+        <a href="/posts-output/2022-10-31-learn-you-a-keeframe-part-4/">&laquo; Learn You A Kee-Frame, Part 4</a>
+        
         
         <a class="right" href="/posts-output/2022-10-22-learn-you-a-keeframe-part-2/">Learn You A Kee-Frame, Part 2 &raquo;</a>
         
@@ -601,11 +605,11 @@ now.  Also additional libraries are pulled in</p><ul><li>Parsing: <code>instapar
                             <h3>Recent Posts</h3>
                             <ul>
                                 
+                                <li><a href="/posts-output/2022-10-31-learn-you-a-keeframe-part-4/">Learn You A Kee-Frame, Part 4</a></li>
+                                
                                 <li><a href="/posts-output/2022-10-28-learn-you-a-keeframe-part-3/">Learn You A Kee-Frame, Part 3</a></li>
                                 
                                 <li><a href="/posts-output/2022-10-22-learn-you-a-keeframe-part-2/">Learn You A Kee-Frame, Part 2</a></li>
-                                
-                                <li><a href="/posts-output/2022-10-19-learn-you-a-keeframe-part-1/">Learn You A Kee-Frame, Part 1</a></li>
                                 
                             </ul>
                         </div>

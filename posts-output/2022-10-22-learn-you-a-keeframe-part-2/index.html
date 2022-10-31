@@ -155,7 +155,7 @@ is about.  Again from the re-frame documentation:
 
 (defn loader [body]
   (error/boundary
-   (if (and true (&lt;sub [:initialized?]))
+   (if (and true (&lt;sub [:ui :initialized?]))
      body
      [page/loading-page])))
 </code></pre><p>I did play around with effect chaining and glimt, but for this case
@@ -165,8 +165,9 @@ change as the request progresses.</p><p><code>error/boundary</code> on the other
 of writing <code>[:input "xxx"]</code> instead of <code>[:input {:value "xxx"}]</code> - without
 <code>error/boundary</code> this will produce a white screen.  With <code>error/boundary</code> I get a helpful message telling
 me what went wrong.</p><p>The <code>(and true)</code> bit is for cheap "pre-rendered" html:  I toggle it to false
-and copy the the app node from the browsers development tools into <code>index.html</code>.</p><p>And this is the subscription for <code>:initialized?</code>:</p><pre><code class="clojure">(rf/reg-sub :initialized?
-            (fn [db] (-&gt; db :ui :initialized?)))
+and copy the the app node from the browsers development tools into <code>index.html</code>.</p><p>And this is the subscription for <code>:ui</code>:</p><pre><code class="clojure">;; (fn [db [ &amp; args]] (get-in db args))
+;; (fn [db args] (get-in db args))
+(rf/reg-sub :ui get-in)
 </code></pre><h3 id="spec">Spec</h3><p>But ... what config are we loading exactly?  I am glad you asked!<br />
 Let us look at the spec:</p><pre><code class="clojure">(s/def ::db-spec (s/keys :req-un [::ui
                                   ::config
@@ -180,7 +181,10 @@ Let us look at the spec:</p><pre><code class="clojure">(s/def ::db-spec (s/keys 
 (s/def ::show-dev-tab? boolean?)
 </code></pre><p>The <code>:app-db-spec</code> option to <code>k/start!</code> starts validating
 the app db everytime it changes (on initialization too!).
-The error messages come from <code>expound</code> and are very helpful.</p><h3 id="routing">Routing</h3><pre><code class="clojure">;; another compile time constant - base-path for router
+The error messages come from <code>expound</code> and are very helpful.</p><h3 id="routing">Routing</h3><blockquote><p>Update: my <a href="https://github.com/grmble/kee-frame">fork of kee-frame</a> supports <code>:base-path</code> in
+<code>keeframe.core/start!</code>, this allow the use of hashed routes which
+work much better with github pages.  There is a pull request,
+we will see if it gets merged.</p></blockquote><pre><code class="clojure">;; another compile time constant - base-path for router
 (goog-define ^String BASE-PATH "")
 
 (def routes
@@ -229,7 +233,7 @@ the deployment script sets it to <code>"/learn-you-a-keeframe/partX"</code>.</p>
        [nav-link tab "Home" :home]
        [nav-link tab "Data" :data]
        [nav-link tab "Config" :config]
-       (when (&lt;sub [:show-dev-tab?])
+       (when (&lt;sub [:config :show-dev-tab?])
          [nav-link tab "Dev" :dev])]]]))
 </code></pre><h3 id="the-dev-tab">The Dev Tab</h3><p>For now, it just contains documenation links.  I tend
 to have lots of browser tabs open.  With this example
@@ -429,7 +433,7 @@ is about.  Again from the re-frame documentation:
 
 (defn loader [body]
   (error/boundary
-   (if (and true (&lt;sub [:initialized?]))
+   (if (and true (&lt;sub [:ui :initialized?]))
      body
      [page/loading-page])))
 </code></pre><p>I did play around with effect chaining and glimt, but for this case
@@ -439,8 +443,9 @@ change as the request progresses.</p><p><code>error/boundary</code> on the other
 of writing <code>[:input "xxx"]</code> instead of <code>[:input {:value "xxx"}]</code> - without
 <code>error/boundary</code> this will produce a white screen.  With <code>error/boundary</code> I get a helpful message telling
 me what went wrong.</p><p>The <code>(and true)</code> bit is for cheap "pre-rendered" html:  I toggle it to false
-and copy the the app node from the browsers development tools into <code>index.html</code>.</p><p>And this is the subscription for <code>:initialized?</code>:</p><pre><code class="clojure">(rf/reg-sub :initialized?
-            (fn [db] (-&gt; db :ui :initialized?)))
+and copy the the app node from the browsers development tools into <code>index.html</code>.</p><p>And this is the subscription for <code>:ui</code>:</p><pre><code class="clojure">;; (fn [db [ &amp; args]] (get-in db args))
+;; (fn [db args] (get-in db args))
+(rf/reg-sub :ui get-in)
 </code></pre><h3 id="spec">Spec</h3><p>But ... what config are we loading exactly?  I am glad you asked!<br />
 Let us look at the spec:</p><pre><code class="clojure">(s/def ::db-spec (s/keys :req-un [::ui
                                   ::config
@@ -454,7 +459,10 @@ Let us look at the spec:</p><pre><code class="clojure">(s/def ::db-spec (s/keys 
 (s/def ::show-dev-tab? boolean?)
 </code></pre><p>The <code>:app-db-spec</code> option to <code>k/start!</code> starts validating
 the app db everytime it changes (on initialization too!).
-The error messages come from <code>expound</code> and are very helpful.</p><h3 id="routing">Routing</h3><pre><code class="clojure">;; another compile time constant - base-path for router
+The error messages come from <code>expound</code> and are very helpful.</p><h3 id="routing">Routing</h3><blockquote><p>Update: my <a href="https://github.com/grmble/kee-frame">fork of kee-frame</a> supports <code>:base-path</code> in
+<code>keeframe.core/start!</code>, this allow the use of hashed routes which
+work much better with github pages.  There is a pull request,
+we will see if it gets merged.</p></blockquote><pre><code class="clojure">;; another compile time constant - base-path for router
 (goog-define ^String BASE-PATH "")
 
 (def routes
@@ -503,7 +511,7 @@ the deployment script sets it to <code>"/learn-you-a-keeframe/partX"</code>.</p>
        [nav-link tab "Home" :home]
        [nav-link tab "Data" :data]
        [nav-link tab "Config" :config]
-       (when (&lt;sub [:show-dev-tab?])
+       (when (&lt;sub [:config :show-dev-tab?])
          [nav-link tab "Dev" :dev])]]]))
 </code></pre><h3 id="the-dev-tab">The Dev Tab</h3><p>For now, it just contains documenation links.  I tend
 to have lots of browser tabs open.  With this example
@@ -603,11 +611,11 @@ some work and pulls in more libraries.</p><ul><li>Spec Validation: <code>kee-fra
                             <h3>Recent Posts</h3>
                             <ul>
                                 
+                                <li><a href="/posts-output/2022-10-31-learn-you-a-keeframe-part-4/">Learn You A Kee-Frame, Part 4</a></li>
+                                
                                 <li><a href="/posts-output/2022-10-28-learn-you-a-keeframe-part-3/">Learn You A Kee-Frame, Part 3</a></li>
                                 
                                 <li><a href="/posts-output/2022-10-22-learn-you-a-keeframe-part-2/">Learn You A Kee-Frame, Part 2</a></li>
-                                
-                                <li><a href="/posts-output/2022-10-19-learn-you-a-keeframe-part-1/">Learn You A Kee-Frame, Part 1</a></li>
                                 
                             </ul>
                         </div>

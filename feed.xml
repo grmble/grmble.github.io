@@ -1,4 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><atom:link href="https://grmble.github.io/" rel="self" type="application/rss+xml"/><title>Grmblog</title><link>https://grmble.github.io/</link><description>Writing things down so I remember</description><lastBuildDate>Sat, 29 Oct 2022 08:31:13 +0200</lastBuildDate><generator>clj-rss</generator><item><guid>https://grmble.github.io/posts-output/2022-10-28-learn-you-a-keeframe-part-3/</guid><link>https://grmble.github.io/posts-output/2022-10-28-learn-you-a-keeframe-part-3/</link><title>Learn You A Kee-Frame, Part 3</title><description>A wizard's staff has a knob on the end.-- TraditionalIt is time to write a more substantial example.
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><atom:link href="https://grmble.github.io/" rel="self" type="application/rss+xml"/><title>Grmblog</title><link>https://grmble.github.io/</link><description>Writing things down so I remember</description><lastBuildDate>Mon, 31 Oct 2022 22:43:31 +0100</lastBuildDate><generator>clj-rss</generator><item><guid>https://grmble.github.io/posts-output/2022-10-31-learn-you-a-keeframe-part-4/</guid><link>https://grmble.github.io/posts-output/2022-10-31-learn-you-a-keeframe-part-4/</link><title>Learn You A Kee-Frame, Part 4</title><description>Originally I just wanted to take a look at re-frame/kee-frame.
+But I've been thinking about a program aware training log
+that runs on my phone for a while now.  So I had been
+thinking about React Native and that possibility was in
+the back of my mind.I was  not really aware of "Progressive Web Apps",
+I only had a vague notion that webapps these days can
+run offline too.  But I did read up on it and figured this
+might be a viable option.  And I would
+not have to deal with app stores.</description><pubDate>Mon, 31 Oct 2022 00:00:00 +0100</pubDate></item><item><guid>https://grmble.github.io/posts-output/2022-10-28-learn-you-a-keeframe-part-3/</guid><link>https://grmble.github.io/posts-output/2022-10-28-learn-you-a-keeframe-part-3/</link><title>Learn You A Kee-Frame, Part 3</title><description>A wizard's staff has a knob on the end.-- TraditionalIt is time to write a more substantial example.
 We are going to write a lifter's log, with records (haha!) of
 weights lifted and fancy charts.  By pure chance I already
 have such a thing and I love it, except for 2 deficiencies:
