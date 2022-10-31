@@ -16,7 +16,7 @@ not have to deal with app stores.
 
 ## Making a Progressive Web App
 
-In one word: TEDIOUS.
+TEDIOUS BUT WORTH IT.
 
 Mistake #1, I started with MDN which usually works out well for me.
 But apparently Mozilla is not as hot about PWAs as they used to be,
@@ -218,11 +218,10 @@ I am not showing the tooling, but the templates are handled by this script:
 ### Conclusion
 
 I am very pleased with how this turned out.  The web app works well on my phone, it works
-offline, and I can even install it on the phones home screen.  If installed,
-startup is very fast and I can start it while offline.
+offline, and it can even be installed.  If installed, startup is very fast and I can start it while offline.
 
-I might replace `register_sw.js` with equivalent clojure code in the main application
-in the future.  In particular, when online there could be periodic checks for new
+In the futre, I might replace `register_sw.js` with equivalent clojure code in the main application.
+In particular, when online there could be periodic checks for new
 versions and a popup or button to install that version.  That would enable us
 to go back to a `cache first` strategy which was a bit faster.
 

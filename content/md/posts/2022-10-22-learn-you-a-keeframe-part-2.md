@@ -143,7 +143,7 @@ is about.  Again from the re-frame documentation:
 
 (defn loader [body]
   (error/boundary
-   (if (and true (<sub [:initialized?]))
+   (if (and true (<sub [:ui :initialized?]))
      body
      [page/loading-page])))
 ```
@@ -161,11 +161,12 @@ me what went wrong.
 The `(and true)` bit is for cheap "pre-rendered" html:  I toggle it to false
 and copy the the app node from the browsers development tools into `index.html`.
 
-And this is the subscription for `:initialized?`:
+And this is the subscription for `:ui`:
 
 ```clojure
-(rf/reg-sub :initialized?
-            (fn [db] (-> db :ui :initialized?)))
+;; (fn [db [ & args]] (get-in db args))
+;; (fn [db args] (get-in db args))
+(rf/reg-sub :ui get-in)
 ```
 
 ### Spec
@@ -192,6 +193,11 @@ The error messages come from `expound` and are very helpful.
 
 
 ### Routing
+
+> Update: my [fork of kee-frame][keeframe_fork] supports `:base-path` in
+> `keeframe.core/start!`, this allow the use of hashed routes which
+> work much better with github pages.  There is a pull request,
+> we will see if it gets merged.
 
 ```clojure
 ;; another compile time constant - base-path for router
@@ -261,7 +267,7 @@ The release build for github pages is done by [bb.edn][lyakf_bb_edn].
        [nav-link tab "Home" :home]
        [nav-link tab "Data" :data]
        [nav-link tab "Config" :config]
-       (when (<sub [:show-dev-tab?])
+       (when (<sub [:config :show-dev-tab?])
          [nav-link tab "Dev" :dev])]]]))
 ```
 
@@ -365,3 +371,4 @@ some work and pulls in more libraries.
 [lyakf_bb_edn]: https://github.com/grmble/learn-you-a-keeframe/blob/master/bb.edn
 [lyakf_part2]: https://grmble.github.io/learn-you-a-keeframe/part2/
 [lyakf_part2_source]: https://github.com/grmble/learn-you-a-keeframe/tree/part2
+[keeframe_fork]: https://github.com/grmble/kee-frame

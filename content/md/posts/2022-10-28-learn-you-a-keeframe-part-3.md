@@ -176,8 +176,8 @@ and for once I am not joking.
 (rf/reg-sub :workout-selectors
             (fn [_qv]
               [(rf/subscribe [:current-program])
-               (rf/subscribe [:current])])
-            (fn [[program {:keys [data]}] _]
+               (rf/subscribe [:current :data])])
+            (fn [[program data] _]
               (program/current-selectors program data)))
 ```
 
@@ -207,8 +207,8 @@ If you are going to drink the cool-aid, why not DRINK ALL THE COOL-AID?
               [(rf/subscribe [:current-program])
                (rf/subscribe [:exercises])
                (rf/subscribe [:workout-selectors])
-               (rf/subscribe [:current])])
-            (fn [[program exercises selectors {:keys [data]}] _]
+               (rf/subscribe [:current :data])])
+            (fn [[program exercises selectors data] _]
               (let [completed?     (program/mk-completed? data)
                     uncompleted    (remove completed? selectors)]
                 (mapv (fn [sel]
