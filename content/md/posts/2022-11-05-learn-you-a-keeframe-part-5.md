@@ -96,8 +96,10 @@ have syntax hightlighting.
 
 
 ```clojure
-(defn- codemirror-content [view]
-  (some-> view .-state .-doc .-text))
+;; the ^js hint fixes the "can  not infer" warning
+(defn- codemirror-content [^js view]
+  (. (. view -state) sliceDoc))
+
 
 ;; the inner / outer pattern comes straigt from the docs
 ;; https://day8.github.io/re-frame/Using-Stateful-JS-Components/
