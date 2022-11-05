@@ -136,8 +136,10 @@ storage backends would provide the same effects and co-effects,
 just in different namespaces.  This would allow to switch between
 them.  We would have to stop using coeffects for reading though.</p><h2 id="history">History</h2><p>The data tab now shows our history entries.</p><p>Codemirror is very powerful, we could make a
 <code>lezer</code> version of our entry parser and we would
-have syntax hightlighting.</p><pre><code class="clojure">(defn- codemirror-content [view]
-  (some-&gt; view .-state .-doc .-text))
+have syntax hightlighting.</p><pre><code class="clojure">;; the ^js hint fixes the "can  not infer" warning
+(defn- codemirror-content [^js view]
+  (. (. view -state) sliceDoc))
+
 
 ;; the inner / outer pattern comes straigt from the docs
 ;; https://day8.github.io/re-frame/Using-Stateful-JS-Components/
@@ -371,8 +373,10 @@ storage backends would provide the same effects and co-effects,
 just in different namespaces.  This would allow to switch between
 them.  We would have to stop using coeffects for reading though.</p><h2 id="history">History</h2><p>The data tab now shows our history entries.</p><p>Codemirror is very powerful, we could make a
 <code>lezer</code> version of our entry parser and we would
-have syntax hightlighting.</p><pre><code class="clojure">(defn- codemirror-content [view]
-  (some-&gt; view .-state .-doc .-text))
+have syntax hightlighting.</p><pre><code class="clojure">;; the ^js hint fixes the "can  not infer" warning
+(defn- codemirror-content [^js view]
+  (. (. view -state) sliceDoc))
+
 
 ;; the inner / outer pattern comes straigt from the docs
 ;; https://day8.github.io/re-frame/Using-Stateful-JS-Components/
