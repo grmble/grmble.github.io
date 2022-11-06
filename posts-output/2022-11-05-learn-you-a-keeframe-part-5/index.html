@@ -94,7 +94,7 @@ Right now I injecting them as coeffects, this is only
 possible with local storage because it is synchronous.
 With PouchDB or IndexedDB, we would have to dispatch
 additional events, like we do after reading <code>config.json</code>
-over http.</p><pre><code class="clojure">(rf/reg-event-fx :config-loaded
+over http.</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L23">event.cljs</a>:</p><pre><code class="clojure">(rf/reg-event-fx :config-loaded
                  [(rf/inject-cofx :grmble.lyakf.frontend.storage.local/load 
                    [:current :exercises :programs])]
                  (fn [{:keys [db current exercises programs]} [_ config]]
@@ -110,7 +110,7 @@ This will be used later on to produce our fancy charts (with lines
 going ever up!!!).</p><p>The current weights for all exercises are now stored under <code>[:current :weights]</code>.
 This is for PouchDB: if there is a conflict with writing this, there might
 be changes that are hidden to the user, but at least it would be consistent.</p><p>Now <code>:exercises</code> only changes for configuration changes, same thing with
-<code>:programs</code>.</p><pre><code class="clojure">(defn complete-handler [{:keys [db current-date]} [_ selector repsets]]
+<code>:programs</code>.</p><p>Again <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L71">event.cljs</a>:</p><pre><code class="clojure">(defn complete-handler [{:keys [db current-date]} [_ selector repsets]]
   (let [slug                   (get-in db [:current :slug])
         program                (-&gt; db :programs (get slug))
         xref                   (program/exercise-ref program selector)
@@ -136,7 +136,7 @@ storage backends would provide the same effects and co-effects,
 just in different namespaces.  This would allow to switch between
 them.  We would have to stop using coeffects for reading though.</p><h2 id="history">History</h2><p>The data tab now shows our history entries.</p><p>Codemirror is very powerful, we could make a
 <code>lezer</code> version of our entry parser and we would
-have syntax hightlighting.</p><pre><code class="clojure">;; the ^js hint fixes the "can  not infer" warning
+have syntax hightlighting.</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/view/data.cljs#L7">view/data.cljs</a>:</p><pre><code class="clojure">;; the ^js hint fixes the "can  not infer" warning
 (defn- codemirror-content [^js view]
   (. (. view -state) sliceDoc))
 
@@ -188,14 +188,14 @@ use a limited subset of the data, so we do not keep it in memory.
 I actually worked for quite a while on this because I forgot
 about kee-frame's controllers.  Duh.  This is just what
 they are for, and the code is so much nicer than my
-pure re-frame attempt using <code>reg-sub-raw</code>:</p><pre><code class="clojure">(k/reg-controller :data
+hack involving <code>reg-sub-raw</code>:</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/main.cljs#L27">main.cljs</a>:</p><pre><code class="clojure">(k/reg-controller :data
                   {:params (fn [match]
                              (when (= (get-in match [:data :name]) :data)
                                true))
                    :start  [:load-history]
                    :stop   [:dispose-history]})
 </code></pre><h2 id="resetting-exercises-and-snapshots">Resetting Exercises and Snapshots</h2><p>In the wizard, there is now a reset button next to each exercise.
-This toggles a modal form for changing the exercise's current weight:</p><pre><code class="clojure">(defn reset-exercise [exercise show? toggle]
+This toggles a modal form for changing the exercise's current weight:</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/view/home.cljs#L11">view/home.cljs</a>:</p><pre><code class="clojure">(defn reset-exercise [exercise show? toggle]
   (r/with-let [value (r/atom (:weight exercise))]
     (let [reset-exercise! (fn [evt]
                             (&gt;evt [:reset-exercise (:slug exercise) @value])
@@ -217,14 +217,14 @@ This toggles a modal form for changing the exercise's current weight:</p><pre><c
           "Save"]
          [:button.button {:on-click toggle} "Cancel"]]]])))
 </code></pre><p>There is also a snapshotting feature:  since I am already using the program,
-trying things out on my phone now messes up my data.  The history
+trying things out on my phone messes up my data.  The history
 is easily cleaned up on the data tab, but the current wizard state
 is complicated.  So on the dev tab, there are 2 new buttons:
 "Snapshot" and "Restore".  I make a snapshot before loading a new build.
 This stores the entire <code>:current</code> part of the model into local storage
 under a different name.  When I am done playing around I press <code>:restore</code>,
 this replaces regular <code>:current</code> storage with the snapshot and also
-loads it back in.</p><pre><code class="clojure">(rf/reg-event-fx :snapshot-current
+loads it back in.</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L104">event.cljs</a>:</p><pre><code class="clojure">(rf/reg-event-fx :snapshot-current
                  (fn [{:keys [db]} [_]]
                    {:db db
 
@@ -331,7 +331,7 @@ Right now I injecting them as coeffects, this is only
 possible with local storage because it is synchronous.
 With PouchDB or IndexedDB, we would have to dispatch
 additional events, like we do after reading <code>config.json</code>
-over http.</p><pre><code class="clojure">(rf/reg-event-fx :config-loaded
+over http.</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L23">event.cljs</a>:</p><pre><code class="clojure">(rf/reg-event-fx :config-loaded
                  [(rf/inject-cofx :grmble.lyakf.frontend.storage.local/load 
                    [:current :exercises :programs])]
                  (fn [{:keys [db current exercises programs]} [_ config]]
@@ -347,7 +347,7 @@ This will be used later on to produce our fancy charts (with lines
 going ever up!!!).</p><p>The current weights for all exercises are now stored under <code>[:current :weights]</code>.
 This is for PouchDB: if there is a conflict with writing this, there might
 be changes that are hidden to the user, but at least it would be consistent.</p><p>Now <code>:exercises</code> only changes for configuration changes, same thing with
-<code>:programs</code>.</p><pre><code class="clojure">(defn complete-handler [{:keys [db current-date]} [_ selector repsets]]
+<code>:programs</code>.</p><p>Again <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L71">event.cljs</a>:</p><pre><code class="clojure">(defn complete-handler [{:keys [db current-date]} [_ selector repsets]]
   (let [slug                   (get-in db [:current :slug])
         program                (-&gt; db :programs (get slug))
         xref                   (program/exercise-ref program selector)
@@ -373,7 +373,7 @@ storage backends would provide the same effects and co-effects,
 just in different namespaces.  This would allow to switch between
 them.  We would have to stop using coeffects for reading though.</p><h2 id="history">History</h2><p>The data tab now shows our history entries.</p><p>Codemirror is very powerful, we could make a
 <code>lezer</code> version of our entry parser and we would
-have syntax hightlighting.</p><pre><code class="clojure">;; the ^js hint fixes the "can  not infer" warning
+have syntax hightlighting.</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/view/data.cljs#L7">view/data.cljs</a>:</p><pre><code class="clojure">;; the ^js hint fixes the "can  not infer" warning
 (defn- codemirror-content [^js view]
   (. (. view -state) sliceDoc))
 
@@ -425,14 +425,14 @@ use a limited subset of the data, so we do not keep it in memory.
 I actually worked for quite a while on this because I forgot
 about kee-frame's controllers.  Duh.  This is just what
 they are for, and the code is so much nicer than my
-pure re-frame attempt using <code>reg-sub-raw</code>:</p><pre><code class="clojure">(k/reg-controller :data
+hack involving <code>reg-sub-raw</code>:</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/main.cljs#L27">main.cljs</a>:</p><pre><code class="clojure">(k/reg-controller :data
                   {:params (fn [match]
                              (when (= (get-in match [:data :name]) :data)
                                true))
                    :start  [:load-history]
                    :stop   [:dispose-history]})
 </code></pre><h2 id="resetting-exercises-and-snapshots">Resetting Exercises and Snapshots</h2><p>In the wizard, there is now a reset button next to each exercise.
-This toggles a modal form for changing the exercise's current weight:</p><pre><code class="clojure">(defn reset-exercise [exercise show? toggle]
+This toggles a modal form for changing the exercise's current weight:</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/view/home.cljs#L11">view/home.cljs</a>:</p><pre><code class="clojure">(defn reset-exercise [exercise show? toggle]
   (r/with-let [value (r/atom (:weight exercise))]
     (let [reset-exercise! (fn [evt]
                             (&gt;evt [:reset-exercise (:slug exercise) @value])
@@ -454,14 +454,14 @@ This toggles a modal form for changing the exercise's current weight:</p><pre><c
           "Save"]
          [:button.button {:on-click toggle} "Cancel"]]]])))
 </code></pre><p>There is also a snapshotting feature:  since I am already using the program,
-trying things out on my phone now messes up my data.  The history
+trying things out on my phone messes up my data.  The history
 is easily cleaned up on the data tab, but the current wizard state
 is complicated.  So on the dev tab, there are 2 new buttons:
 "Snapshot" and "Restore".  I make a snapshot before loading a new build.
 This stores the entire <code>:current</code> part of the model into local storage
 under a different name.  When I am done playing around I press <code>:restore</code>,
 this replaces regular <code>:current</code> storage with the snapshot and also
-loads it back in.</p><pre><code class="clojure">(rf/reg-event-fx :snapshot-current
+loads it back in.</p><p>From <a href="https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L104">event.cljs</a>:</p><pre><code class="clojure">(rf/reg-event-fx :snapshot-current
                  (fn [{:keys [db]} [_]]
                    {:db db
 
