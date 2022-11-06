@@ -30,6 +30,7 @@ With PouchDB or IndexedDB, we would have to dispatch
 additional events, like we do after reading `config.json`
 over http.
 
+From [event.cljs](https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L23):
 ```clojure
 (rf/reg-event-fx :config-loaded
                  [(rf/inject-cofx :grmble.lyakf.frontend.storage.local/load 
@@ -57,6 +58,7 @@ be changes that are hidden to the user, but at least it would be consistent.
 Now `:exercises` only changes for configuration changes, same thing with
 `:programs`.
 
+Again [event.cljs](https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L71):
 ```clojure
 (defn complete-handler [{:keys [db current-date]} [_ selector repsets]]
   (let [slug                   (get-in db [:current :slug])
@@ -95,6 +97,7 @@ Codemirror is very powerful, we could make a
 have syntax hightlighting.
 
 
+From [view/data.cljs](https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/view/data.cljs#L7):
 ```clojure
 ;; the ^js hint fixes the "can  not infer" warning
 (defn- codemirror-content [^js view]
@@ -152,8 +155,9 @@ use a limited subset of the data, so we do not keep it in memory.
 I actually worked for quite a while on this because I forgot
 about kee-frame's controllers.  Duh.  This is just what
 they are for, and the code is so much nicer than my
-pure re-frame attempt using `reg-sub-raw`:
+hack involving `reg-sub-raw`:
 
+From [main.cljs](https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/main.cljs#L27):
 ```clojure
 (k/reg-controller :data
                   {:params (fn [match]
@@ -168,6 +172,8 @@ pure re-frame attempt using `reg-sub-raw`:
 In the wizard, there is now a reset button next to each exercise.
 This toggles a modal form for changing the exercise's current weight:
 
+
+From [view/home.cljs](https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/view/home.cljs#L11):
 ```clojure
 (defn reset-exercise [exercise show? toggle]
   (r/with-let [value (r/atom (:weight exercise))]
@@ -193,7 +199,7 @@ This toggles a modal form for changing the exercise's current weight:
 ```
 
 There is also a snapshotting feature:  since I am already using the program,
-trying things out on my phone now messes up my data.  The history
+trying things out on my phone messes up my data.  The history
 is easily cleaned up on the data tab, but the current wizard state
 is complicated.  So on the dev tab, there are 2 new buttons:
 "Snapshot" and "Restore".  I make a snapshot before loading a new build.
@@ -202,6 +208,8 @@ under a different name.  When I am done playing around I press `:restore`,
 this replaces regular `:current` storage with the snapshot and also
 loads it back in.
 
+
+From [event.cljs](https://github.com/grmble/learn-you-a-keeframe/blob/part5/src/grmble/lyakf/frontend/event.cljs#L104):
 ```clojure
 (rf/reg-event-fx :snapshot-current
                  (fn [{:keys [db]} [_]]
